@@ -4,9 +4,16 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import org.apache.commons.io.IOUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static dev.deploy4j.scripts.Commands.*;
 
 public class Deploy4j {
 
@@ -18,7 +25,6 @@ public class Deploy4j {
     String image = "teggr/deploy4j-demo:latest";
 
     // ssh onto the the box
-    String root = "root";
     String host = "localhost";
     int port = 2222;
 
@@ -31,39 +37,99 @@ public class Deploy4j {
     jsch.addIdentity(privateKey, privateKeyPassphrase);
 
     // create a session
-    Session session = jsch.getSession(root, host, port);
+    Session session = jsch.getSession("root", host, port);
     session.setConfig("StrictHostKeyChecking", "no");
     session.connect();
 
-    ChannelExec channel = (ChannelExec) session.openChannel("exec");
-    channel.setCommand("pwd");
-    channel.setInputStream(null);
-    channel.setErrStream(System.err);
+    System.out.println("Connected to " + host + ":" + port);
 
-    InputStream in = channel.getInputStream();
-    channel.connect();
+    System.out.println("\n\nTesting super user...");
 
-    byte[] tmp = new byte[1024];
-    while (true) {
-        int i = in.read(tmp, 0, 1024);
-        if (i <= 0) break;
-        System.out.print(new String(tmp, 0, i));
+    cmd command = new cmd( "[ \"${EUID:-$(id -u)}\" -eq 0 ] || command -v sudo >/dev/null || command -v su >/dev/null" );
+
+    ExecResult exec = exec(session, command);
+    System.out.println("Exit status: " + exec.exitStatus);
+    System.out.println("Output: " + exec.execOutput);
+    System.out.println("Error Output: " + exec.execErrorOutput);
+
+    System.out.println("\n\nChecking if docker is installed...");
+
+     command = new cmd("docker", "-v");
+     exec = exec(session, command);
+    System.out.println("Exit status: " + exec.exitStatus);
+    System.out.println("Output: " + exec.execOutput);
+    System.out.println("Error Output: " + exec.execErrorOutput);
+
+    if(exec.exitStatus != 0){
+
+      System.out.println("\n\nInstalling docker (may take a minute)...");
+
+      command = pipe( getDocker(), new cmd("sh") );
+      exec = exec(session, command);
+      System.out.println("Exit status: " + exec.exitStatus);
+      System.out.println("Output: " + exec.execOutput);
+      System.out.println("Error Output: " + exec.execErrorOutput);
+
     }
 
-    channel.disconnect();
-
-    
-
-    session.disconnect();
-    
-    // install docker
-
-    // add supporting containers
+    // run our proxy
+    // is the proxy running?
+    // if not, run it
 
     // run the container
 
     // update the proxy
 
+    session.disconnect();
+
+  }
+
+  private static cmd getDocker() {
+    return shell(
+      any(
+        new cmd( "curl", "-fsSL", "https://get.docker.com" ),
+        new cmd( "wget", "-O -", "https://get.docker.com" ),
+        new cmd( "echo", "\"exit 1\"")
+      )
+    );
+  }
+
+  private static ExecResult exec(Session session, cmd command) throws JSchException, IOException {
+
+    int exitStatus = -1;
+    ByteArrayOutputStream capturedErrorStream = new ByteArrayOutputStream();
+    ByteArrayOutputStream capturedInputStream = new ByteArrayOutputStream();
+
+    ChannelExec channel = null;
+    try {
+
+      channel = (ChannelExec) session.openChannel("exec");
+      String collect = Stream.of(command).flatMap(cmd -> Stream.of(cmd.cmds())).collect(Collectors.joining(" "));
+      System.out.println("Executing: " + collect);
+      channel.setCommand(collect);
+      channel.setInputStream(null);
+      channel.setErrStream(capturedErrorStream);
+
+      InputStream in = channel.getInputStream();
+      channel.connect();
+      IOUtils.copy(in, capturedInputStream);
+
+      exitStatus = channel.getExitStatus();
+
+    } finally {
+      if (channel != null) {
+        try {
+          channel.disconnect();
+        } catch (Exception e) {
+        }
+      }
+    }
+
+    return new ExecResult(exitStatus, capturedInputStream.toString(StandardCharsets.UTF_8), capturedErrorStream.toString(StandardCharsets.UTF_8));
+
+  }
+
+  public record ExecResult(int exitStatus, String execOutput, String execErrorOutput) {
   }
 
 }
