@@ -1,5 +1,6 @@
 FROM eclipse-temurin:24-jre-alpine
 LABEL authors="robin"
+LABEL service="deploy4j-demo"
 
 EXPOSE 8080
 
