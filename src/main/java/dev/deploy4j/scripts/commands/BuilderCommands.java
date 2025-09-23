@@ -1,16 +1,16 @@
 package dev.deploy4j.scripts.commands;
 
 import dev.deploy4j.scripts.Cmd;
-import dev.deploy4j.scripts.configuration.Deploy4jConfiguration;
+import dev.deploy4j.scripts.configuration.Deploy4jConfig;
 
 import static dev.deploy4j.scripts.Commands.any;
 import static dev.deploy4j.scripts.Commands.pipe;
 
 public class BuilderCommands {
 
-  private final Deploy4jConfiguration configuration;
+  private final Deploy4jConfig configuration;
 
-  public BuilderCommands(Deploy4jConfiguration configuration) {
+  public BuilderCommands(Deploy4jConfig configuration) {
     this.configuration = configuration;
   }
 

@@ -20,7 +20,7 @@ public class Commands {
 
     List<String> list = Stream.of(commands)
       .filter(Objects::nonNull)
-      .map(cmd -> cmd.arg( by ) )
+      .map(cmd -> cmd.args( by ) )
       .flatMap(cmd -> cmd.build().stream() )
       .toList();
 
@@ -105,6 +105,10 @@ public class Commands {
     escaped = m.replaceAll("\\\\\\$");
 
     return escaped;
+  }
+
+  public static List<String> optionize(Map<String, String> args) {
+    return optionize(args, null);
   }
 
   /**

@@ -8,12 +8,16 @@ import dev.deploy4j.scripts.commands.DockerCommands;
 import dev.deploy4j.scripts.commands.ServerCommands;
 import dev.deploy4j.scripts.commands.TraefikCommands;
 import dev.deploy4j.scripts.config.Traefik;
-import dev.deploy4j.scripts.configuration.Deploy4jConfiguration;
+import dev.deploy4j.scripts.configuration.Deploy4jConfig;
+import dev.deploy4j.scripts.configuration.HealthCheckConfig;
+import dev.deploy4j.scripts.configuration.ServerConfig;
 import dev.deploy4j.scripts.configuration.SshOptions;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import static dev.deploy4j.scripts.RandomHex.randomHex;
 
 public class Deploy4j {
 
@@ -21,17 +25,18 @@ public class Deploy4j {
 
     System.out.println("Hello, Deploy4j!");
 
-    Deploy4jConfiguration configuration = new Deploy4jConfiguration(
+    Deploy4jConfig configuration = new Deploy4jConfig(
       "deploy4j-demo",
       "teggr/deploy4j-demo:0.0.1-SNAPSHOT",
-      "localhost",
+      List.of(new ServerConfig( "localhost" )),
       new SshOptions(
         2222,
         System.getenv("PRIVATE_KEY"),
         System.getenv("PRIVATE_KEY_PASSPHRASE"),
         false
       ),
-      ".deploy4j"
+      Map.of( "DATABASE_HOST", "mysql-db" ),
+      null
     );
 
     // setup ssh environment
@@ -55,9 +60,12 @@ public class Deploy4j {
 
       try {
 
+        Role role = new Role("web", configuration);
+
         DockerCommands dockerCommands = new DockerCommands();
         BuilderCommands builderCommands = new BuilderCommands(configuration);
         ServerCommands serverCommands = new ServerCommands(configuration);
+        AppCommands appCommands = new AppCommands(configuration, role, hostSession);
 
         // bootstrap
         System.out.println("=================================");
@@ -94,6 +102,8 @@ public class Deploy4j {
 
         // deploy
 
+        // "kamal:cli:build:pull"
+
         // login into registry if needed
         // pull the image
         System.out.println("=================================");
@@ -115,7 +125,33 @@ public class Deploy4j {
         exec = hostSession.exec(traefikCommands.startOrRun());
 
         // detect stale containers
-        // app role + host + configuration
+        // "kamal:cli:app:stale_containers"
+
+
+        // "kamal:cli:app:boot"
+        String version = versionOrLatest(configuration);
+
+        // boot -> host, role, self, version, barrier
+        // Kamal::Cli::App::Boot.new(host, role, self, version, barrier).run
+        String oldVersion = oldVersionRenamedIfClashing(version, appCommands, hostSession);
+
+        // wait_at_barrier
+
+        // start_new_version
+
+        // 1. Convert to string & truncate to 51 chars
+        String prefix = configuration.host().length() > 51 ? configuration.host().substring(0, 51) : configuration.host();
+
+        // 2. Remove trailing dots
+        prefix = prefix.replaceAll("\\.+$", "");
+
+        // 3. Append random hex (12 chars = 6 bytes)
+        String suffix = randomHex(6);
+
+        String hostName = prefix + "-" + suffix;
+
+        appCommands.run(hostName);
+
         // list+versions
 //        command =
 //          pipe(
@@ -181,19 +217,22 @@ public class Deploy4j {
 
   }
 
+  private static String oldVersionRenamedIfClashing(String version,  AppCommands appCommands, Host hostSession) throws JSchException, IOException {
+    Host.ExecResult exec = hostSession.exec(appCommands.containerIdForVersion(version));
+    String containerIdForVersion = exec.execOutput();
+    if( containerIdForVersion != null ) {
+      String renamedVersion = version + "_replaced_" + randomHex(8);
+      hostSession.exec(appCommands.renameContainer(version, renamedVersion));
+    }
 
-  private static String containerPrefix() {
-    // [ config.service, name, config.destination ].compact.join("-")
-    return "deploy4j-demo-web-prod";
+    exec = hostSession.exec(appCommands.currentRunningVersion());
+    return exec.execOutput();
   }
 
-  private static List<String> filters() {
-    List<String> filters = new ArrayList<>();
-    filters.add("label=service=deploy4j-demo");
-//    filters.add("label=destination=#");
-//    filters.add("label=role=#");
-    // List.of() statuses
-    return filters;
+  private static String versionOrLatest(Deploy4jConfig configuration) {
+    // can override via the command line
+    return configuration.version() != null ?
+      configuration.version() : configuration.latestTag();
   }
 
 }

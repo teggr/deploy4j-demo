@@ -34,15 +34,15 @@ public class TraefikCommands {
 //           .arg( optionize( traefik.args, "=" ) ) //          *cmd_option_args
 //        );
     return Cmd.cmd("docker", "run")
-      .arg("--detach")
-      .arg("--name", "traefik")
-      .arg("--restart", "unless-stopped")
+      .args("--detach")
+      .args("--name", "traefik")
+      .args("--restart", "unless-stopped")
       .args(Commands.argumentize("--publish", List.of(
         "80:80",
         "8080:8080"
       )))
-      .arg("--volume", "/var/run/docker.sock:/var/run/docker.sock")
-      .arg(traefik.image)
+      .args("--volume", "/var/run/docker.sock:/var/run/docker.sock")
+      .args(traefik.image)
       .args(optionize(Map.of(
           "api.insecure", "true",
           "providers.docker", "true",
