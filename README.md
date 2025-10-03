@@ -20,3 +20,7 @@ Example setup for running deploy4j with a standard Spring Boot application.
 ./mvw clean deploy
 ```
 
+## Deployment Requirements
+
+* Need a data volume for the database (/data)
+* Need to expose port 8080 for the application

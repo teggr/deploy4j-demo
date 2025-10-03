@@ -34,5 +34,3 @@ build/
 
 ### Project directories ###
 .data/
-.deploy-4j-build/
-external/
