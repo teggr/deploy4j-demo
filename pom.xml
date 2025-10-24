@@ -21,6 +21,13 @@
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <dependencies>
 
         <!-- Application dependencies -->
@@ -104,6 +111,12 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.teggr.deploy4j</groupId>
+                <artifactId>deploy4j-maven-plugin</artifactId>
+                <version>-SNAPSHOT</version>
             </plugin>
 
         </plugins>
