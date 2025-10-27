@@ -23,7 +23,7 @@ Example setup for running deploy4j with a standard Spring Boot application.
 ./mvnw deploy4j:setup
 
 # or
-deploy4j setup --version 0.0.1-SNAPSHOT
+deploy4j setup --version 0.0.2-SNAPSHOT
 
 # Deploy the image to a server
 ./mvnw deploy4j:deploy
