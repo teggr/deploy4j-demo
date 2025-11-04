@@ -54,3 +54,19 @@ ssh -o StrictHostKeyChecking=no -p 2222 root@localhost
 # connect to shell
 docker exec -it deploy4j-droplet /bin/bash
 ```
+
+## Having issues with ghost data?
+
+SSH onto the droplet and clear out the data directory.
+
+```shell
+droplet-ssh.bat
+
+docker run --rm -it \
+  -v $PWD/deploy4j-demo-db/data:/var/lib/postgresql/18/docker \
+  alpine sh -c "echo 'Contents of /var/lib/postgresql/18/docker:' && ls -la /var/lib/postgresql/18/docker"
+
+docker run --rm -it \
+  -v $PWD/deploy4j-demo-db/data:/var/lib/postgresql/18/docker \
+  alpine sh -c "echo 'Removing all files...' && rm -rf /var/lib/postgresql/18/docker/* /var/lib/postgresql/18/docker/.[!.]* /var/lib/postgresql/18/docker/..?* && echo 'Cleanup done.' && ls -la /var/lib/postgresql/18/docker"
+```

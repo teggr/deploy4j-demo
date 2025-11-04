@@ -36,4 +36,3 @@ build/
 .data/
 .env
 .env*
-config/
