@@ -1,6 +1,6 @@
 FROM eclipse-temurin:24-jre-alpine
 LABEL authors="robin"
-LABEL service="teggr/deploy4j-demo:0.0.2-SNAPSHOT"
+# LABEL service="teggr/deploy4j-demo:*" -- added via build arg in CI/CD pipeline
 
 EXPOSE 8080
 

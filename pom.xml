@@ -128,6 +128,12 @@
                                 <dockerFile>${project.basedir}/Dockerfile</dockerFile>
                                 <contextDir>${project.basedir}</contextDir>
                             </build>
+                            <labels>
+                                <label>
+                                    <key>service</key>
+                                    <value>teggr/${project.artifactId}:${project.version}</value>
+                                </label>
+                            </labels>
                         </image>
                     </images>
                 </configuration>
