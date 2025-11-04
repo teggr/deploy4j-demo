@@ -16,6 +16,17 @@ In the `test` directory is [Deploy4jDemoApplicationTest.java](src/test/java/dev/
 
 * Maven is responsible for building the jar and docker image.
 
+The existing `config/deploy.yml` is setup for deploying to the droplet described below.
+
+Create an `.env` file in the root of the project with the following contents:
+
+```text
+DOCKER_PASSWORD=
+DOCKER_USERNAME=
+PRIVATE_KEY=
+PRIVATE_KEY_PASSPHRASE=
+```
+
 ```shell
 # Build and test the application
 ./mvnw clean verify
