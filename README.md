@@ -8,6 +8,10 @@ Example setup for running deploy4j with a standard Spring Boot application.
 - Maven 3.9+
 - Docker
 
+## Running locally
+
+In the `test` directory is [Deploy4jDemoApplicationTest.java](src/test/java/dev/deploy4j/jdemo/Deploy4jDemoApplicationTest.java) which can be used to run the application with Testcontainer support.
+
 ## Build and DEPLOY
 
 * Maven is responsible for building the jar and docker image.
