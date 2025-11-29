@@ -132,14 +132,39 @@ If you want to build and deploy the project yourself, you can use the provided M
 
 You will need to change the repo name in the `pom.xml` to match your Docker Hub repository and the name of the image in the `config/deploy.yml` file.
 
+### Building the Docker image
+
+The project uses the Spring Boot Maven Plugin's `build-image` goal with Paketo Buildpacks to build Docker images.
+
 ```shell
-# Build and test the application
-./mvnw clean verify
+# Build the application and create Docker image (local only, no push)
+./mvnw spring-boot:build-image -DskipTests -Dspring-boot.build-image.publish=false
 
-# Deploy the docker image to Docker Hub
-./mvw deploy
+# Or with full build including tests
+./mvnw clean verify spring-boot:build-image -Dspring-boot.build-image.publish=false
+```
 
-# or
+### Building and pushing to Docker Hub
+
+To build and push the Docker image to Docker Hub, you need to set the `DOCKER_USERNAME` and `DOCKER_PASSWORD` environment variables:
+
+```shell
+# Set Docker Hub credentials (required for push)
+export DOCKER_USERNAME=your-username
+export DOCKER_PASSWORD=your-password
+
+# Build and push to Docker Hub
+./mvnw spring-boot:build-image -DskipTests
+
+# Override the image name if needed
+./mvnw spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=myregistry/myapp:1.0.0
+```
+
+### Deploying with deploy4j
+
+Once the image is pushed to Docker Hub, you can deploy using deploy4j:
+
+```shell
 deploy4j setup --version 0.0.2-SNAPSHOT
 ```
 ## Help?

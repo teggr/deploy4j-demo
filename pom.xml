@@ -132,7 +132,14 @@
                             <authors>robin</authors>
                             <service>${project.groupId}/${project.artifactId}:${project.version}</service>
                         </labels>
+                        <publish>true</publish>
                     </image>
+                    <docker>
+                        <publishRegistry>
+                            <username>${env.DOCKER_USERNAME}</username>
+                            <password>${env.DOCKER_PASSWORD}</password>
+                        </publishRegistry>
+                    </docker>
                 </configuration>
             </plugin>
 
