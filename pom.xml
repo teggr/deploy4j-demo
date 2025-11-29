@@ -122,6 +122,17 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <image>
+                        <name>${project.groupId}/${project.artifactId}:${project.version}</name>
+                        <builder>paketobuildpacks/builder:base</builder>
+                        <env>
+                            <BP_JVM_VERSION>24</BP_JVM_VERSION>
+                        </env>
+                        <labels>
+                            <authors>robin</authors>
+                            <service>${project.groupId}/${project.artifactId}:${project.version}</service>
+                        </labels>
+                    </image>
                 </configuration>
             </plugin>
 
@@ -140,40 +151,6 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
-            </plugin>
-
-            <!-- Docker Maven Plugin -->
-            <plugin>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>0.47.0</version>
-                <configuration>
-                    <images>
-                        <image>
-                            <name>teggr/${project.artifactId}:${project.version}</name>
-                            <build>
-                                <dockerFile>${project.basedir}/Dockerfile</dockerFile>
-                                <contextDir>${project.basedir}</contextDir>
-                            </build>
-                        </image>
-                    </images>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>docker-build</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>docker-push</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>push</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
         </plugins>
