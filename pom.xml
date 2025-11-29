@@ -132,7 +132,7 @@
                             <authors>robin</authors>
                             <service>${project.groupId}/${project.artifactId}:${project.version}</service>
                         </labels>
-                        <publish>true</publish>
+                        <publish>false</publish>
                     </image>
                     <docker>
                         <publishRegistry>

@@ -138,27 +138,29 @@ The project uses the Spring Boot Maven Plugin's `build-image` goal with Paketo B
 
 ```shell
 # Build the application and create Docker image (local only, no push)
-./mvnw spring-boot:build-image -DskipTests -Dspring-boot.build-image.publish=false
+./mvnw spring-boot:build-image -DskipTests
 
 # Or with full build including tests
-./mvnw clean verify spring-boot:build-image -Dspring-boot.build-image.publish=false
+./mvnw clean verify spring-boot:build-image
 ```
 
 ### Building and pushing to Docker Hub
 
-To build and push the Docker image to Docker Hub, you need to set the `DOCKER_USERNAME` and `DOCKER_PASSWORD` environment variables:
+To build and push the Docker image to Docker Hub, you need to set the `DOCKER_USERNAME` and `DOCKER_PASSWORD` environment variables and enable publishing:
 
 ```shell
-# Set Docker Hub credentials (required for push)
+# Set Docker Hub credentials (use a personal access token for DOCKER_PASSWORD)
 export DOCKER_USERNAME=your-username
-export DOCKER_PASSWORD=your-password
+export DOCKER_PASSWORD=your-access-token
 
 # Build and push to Docker Hub
-./mvnw spring-boot:build-image -DskipTests
+./mvnw spring-boot:build-image -DskipTests -Dspring-boot.build-image.publish=true
 
 # Override the image name if needed
-./mvnw spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=myregistry/myapp:1.0.0
+./mvnw spring-boot:build-image -DskipTests -Dspring-boot.build-image.publish=true -Dspring-boot.build-image.imageName=myregistry/myapp:1.0.0
 ```
+
+**Note:** For better security, use a Docker Hub personal access token instead of your password. You can create one at [Docker Hub Security Settings](https://hub.docker.com/settings/security).
 
 ### Deploying with deploy4j
 
