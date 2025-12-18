@@ -17,7 +17,7 @@
     <description>deploy4j-demo</description>
 
     <properties>
-        <java.version>24</java.version>
+        <java.version>17</java.version>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
@@ -131,7 +131,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <release>24</release>
+                    <release>17</release>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
