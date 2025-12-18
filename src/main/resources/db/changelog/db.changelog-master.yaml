@@ -22,3 +22,5 @@ databaseChangeLog:
             tableName: application
             columnNames: name
             constraintName: uq_application_name
+  - include:
+      file: db/changelog/002-add-repository-path.yaml

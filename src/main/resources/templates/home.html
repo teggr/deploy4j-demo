@@ -10,13 +10,17 @@
         <tr>
             <th>ID</th>
             <th>Name</th>
+            <th>Repository Path</th>
             <th>Actions</th>
         </tr>
         <th:block th:each="app : ${applications}">
             <tr>
                 <td th:text="${app.id}"></td>
                 <td th:text="${app.name}"></td>
+                <td th:text="${app.repositoryPath}"></td>
                 <td>
+                    <!-- Explore button -->
+                    <a th:href="@{/explore/{id}(id=${app.id})}" style="display:inline-block; padding:5px 10px; background-color:#007bff; color:white; text-decoration:none; border-radius:3px;">Explore</a>
                     <!-- Update form -->
                     <form th:action="@{/update}" method="post" style="display:inline;">
                         <input type="hidden" name="id" th:value="${app.id}" />

@@ -12,12 +12,20 @@ public class Applications {
 
   private final JdbcTemplate jdbcTemplate;
 
-  public record ApplicationRecord(Long id, String name) {}
+  public record ApplicationRecord(Long id, String name, String repositoryPath) {}
 
   public java.util.List<ApplicationRecord> listApplications() {
     return jdbcTemplate.query(
-      "SELECT id, name FROM application",
-      (rs, rowNum) -> new ApplicationRecord(rs.getLong("id"), rs.getString("name"))
+      "SELECT id, name, repository_path FROM application",
+      (rs, rowNum) -> new ApplicationRecord(rs.getLong("id"), rs.getString("name"), rs.getString("repository_path"))
+    );
+  }
+
+  public ApplicationRecord getApplication(Long id) {
+    return jdbcTemplate.queryForObject(
+      "SELECT id, name, repository_path FROM application WHERE id = ?",
+      (rs, rowNum) -> new ApplicationRecord(rs.getLong("id"), rs.getString("name"), rs.getString("repository_path")),
+      id
     );
   }
 
@@ -29,6 +37,11 @@ public class Applications {
   @Transactional
   public void updateApplication(Long id, String name) {
     jdbcTemplate.update("UPDATE application SET name = ? WHERE id = ?", name, id);
+  }
+
+  @Transactional
+  public void updateRepositoryPath(Long id, String repositoryPath) {
+    jdbcTemplate.update("UPDATE application SET repository_path = ? WHERE id = ?", repositoryPath, id);
   }
 
   @Transactional
